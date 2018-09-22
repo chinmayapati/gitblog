@@ -1,0 +1,26 @@
+{
+  "name": "gitblog",
+  "version": "1.0.0",
+  "description": "A CMS for hosting blog on Github",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chinmayapati/gitblog.git"
+  },
+  "keywords": [
+    "Blog",
+    "CMS",
+    "Github",
+    "Node",
+    "React"
+  ],
+  "author": "Chinmaya Pati",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chinmayapati/gitblog/issues"
+  },
+  "homepage": "https://github.com/chinmayapati/gitblog#readme"
+}
