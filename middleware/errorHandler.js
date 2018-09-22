@@ -1,3 +1,5 @@
+const debug = require("debug")("gitblog:error");
+
 const errorInfo = {
     // Client Error
     400: {
@@ -53,6 +55,13 @@ const errorInfo = {
         errorMessage: "Service not available at the moment. PLease try after sometime."
     },
 
+    // Mongoose Error
+    11000: {
+        errorCode: 400,
+        errorType: "Database Error",
+        errorMessage: "The record already exists in the database."
+    },
+
     // Custom Error
     900: {
         errorCode: 900,
@@ -65,13 +74,38 @@ module.exports = {
     postErrorHandler: function (req, res, next) {
         req.error = req.error || 500;
         let error = errorInfo[req.error];
-        error.errorMessage = req.errorMessage || error.errorMessage;
-        res.status(error.errorCode).json(error);
+        req.errorMessage && (error.errorMessage = req.errorMessage);
+
+        // Log error to file
+        winston.error(error.errorType, error); // error, warn, info, verbose. debug, silly
+
+        return res.status(error.errorCode).json(error);
     },
-    preErrorHandler: function(err, req, res, next) {
+
+    postProcessErrorHandler: function (err, req, res, next) {
+        // Log to console
+        debug("postProcessError", err.message);
+
+        let error = errorInfo[500];
+        if (err && err.code && errorInfo[err.code]) {
+            error = errorInfo[err.code];
+            // Log error to file
+            winston.error(error.errorType, error); // error, warn, info, verbose. debug, silly
+
+            return res.status(error.errorCode).json(error);
+        }
+
+        // Log error to file
+        winston.error(err.message, err); // error, warn, info, verbose. debug, silly
+
+        return res.status(error.errorCode).json(error);
+    },
+
+    preErrorHandler: function (err, req, res, next) {
         // JSON parse failed in req.body
         if (err instanceof SyntaxError && err.type == "entity.parse.failed")
             return res.status(900).json(errorInfo[900]);
     },
+
     errorCodes: errorInfo
 };
