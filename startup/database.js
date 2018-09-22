@@ -1,3 +1,7 @@
+// Client side validator
+const Joi = require("joi");
+Joi.objectId = require("joi-objectid")(Joi);
+
 const mongoose = require("mongoose");
 const debug = require("debug")("gitblog:db");
 const config = require("config");
