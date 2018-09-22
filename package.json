@@ -4,7 +4,8 @@
   "description": "A CMS for hosting blog on Github",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "jwtPrivateKey=12345 node app.js",
+    "dev": "jwtPrivateKey=12345 DEBUG=gitblog:* nodemon app.js"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,18 @@
   "bugs": {
     "url": "https://github.com/chinmayapati/gitblog/issues"
   },
-  "homepage": "https://github.com/chinmayapati/gitblog#readme"
+  "homepage": "https://github.com/chinmayapati/gitblog#readme",
+  "dependencies": {
+    "config": "^2.0.1",
+    "cors": "^2.8.4",
+    "debug": "^4.0.1",
+    "express": "^4.16.3",
+    "helmet": "^3.13.0",
+    "joi": "^13.6.0",
+    "jsonwebtoken": "^8.3.0",
+    "mongoose": "^5.2.17"
+  },
+  "devDependencies": {
+    "morgan": "^1.9.1"
+  }
 }
