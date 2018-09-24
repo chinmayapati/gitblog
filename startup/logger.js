@@ -1,14 +1,40 @@
 const winston = require("winston");
 const path = require("path");
 
-module.exports = function() {
+// custom settings for each transport (file, console)
+var options = {
+    file: {
+      level: 'info', // log info, warn and error
+      filename: path.join(process.cwd(), `logs/gitblog.log`),
+      handleExceptions: true,
+      json: true,
+      maxsize: 5242880*2, // 10MB
+      maxFiles: 10,
+      colorize: false,
+    },
+    console: {
+      level: 'debug',
+      handleExceptions: true,
+      json: false,
+      colorize: true,
+    },
+  };
 
-    // Initialize Logger
-    winston.add(new winston.transports.File({filename: path.join(process.cwd(), `logs/error.log`), level: "error"}));
-    // winston.add(new winston.transports.File({filename: path.join(process.cwd(), `logs/debug.log`), level: "debug"}));
-    // winston.add(new winston.transports.File({filename: path.join(process.cwd(), `logs/info.log`), level: "info"}));
-    winston.add(new winston.transports.File({filename: path.join(process.cwd(), `logs/gitblog.log`)}));
-    winston.exceptions.handle( new winston.transports.File({filename: "../logs/uncaughtExceptions.log"}) );
-    return winston;
+  // instantiate a new Winston Logger with the settings defined above
+  let logger = winston.createLogger({
+    transports: [
+      new winston.transports.File(options.file),
+      new winston.transports.Console(options.console)
+    ],
+    exitOnError: false, // do not exit on handled exceptions
+  });
 
-};
+  // create a stream object with a 'write' function that will be used by `morgan`
+  logger.stream = {
+    write: function(message, encoding) {
+      // use the 'info' log level so the output will be picked up by both transports (file and console)
+      logger.info(message);
+    },
+  };
+
+  module.exports = logger;

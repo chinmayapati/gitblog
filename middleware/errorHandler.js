@@ -1,4 +1,5 @@
 const debug = require("debug")("gitblog:error");
+const logger = require("../startup/logger");
 
 const errorInfo = {
     // Client Error
@@ -70,42 +71,22 @@ const errorInfo = {
     }
 };
 
-module.exports = {
-    postErrorHandler: function (req, res, next) {
-        req.error = req.error || 500;
-        let error = errorInfo[req.error];
-        req.errorMessage && (error.errorMessage = req.errorMessage);
+// Handles server errors
+module.exports = function (err, req, res, next) {
+    // Log to console
+    debug("Error:", err.message);
 
+    let error = errorInfo[500];
+    if (err && err.code && errorInfo[err.code]) {
+        error = errorInfo[err.code];
         // Log error to file
-        winston.error(error.errorType, error); // error, warn, info, verbose. debug, silly
+        logger.error(error.errorType, error); // error, warn, info, verbose. debug, silly
 
         return res.status(error.errorCode).json(error);
-    },
+    }
 
-    postProcessErrorHandler: function (err, req, res, next) {
-        // Log to console
-        debug("postProcessError", err.message);
+    // Log error to file
+    logger.error(err.message, err); // error, warn, info, verbose. debug, silly
 
-        let error = errorInfo[500];
-        if (err && err.code && errorInfo[err.code]) {
-            error = errorInfo[err.code];
-            // Log error to file
-            winston.error(error.errorType, error); // error, warn, info, verbose. debug, silly
-
-            return res.status(error.errorCode).json(error);
-        }
-
-        // Log error to file
-        winston.error(err.message, err); // error, warn, info, verbose. debug, silly
-
-        return res.status(error.errorCode).json(error);
-    },
-
-    preErrorHandler: function (err, req, res, next) {
-        // JSON parse failed in req.body
-        if (err instanceof SyntaxError && err.type == "entity.parse.failed")
-            return res.status(900).json(errorInfo[900]);
-    },
-
-    errorCodes: errorInfo
+    return res.status(error.errorCode).json(error);
 };
